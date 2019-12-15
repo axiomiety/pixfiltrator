@@ -1,0 +1,14 @@
+matrix:
+  include:
+    - language: node_js
+      node_js:
+        - 10.3
+      before_install:
+        - cd guest
+      install:
+        - npm install
+      script:
+        - npm test
+
+notifications:
+  email: false
