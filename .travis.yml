@@ -5,7 +5,7 @@ matrix:
       before_script:
         - cd host
       install:
-        - pip install -r requirements.txt
+        - pip install -r host/requirements.txt
       script:
         - pytest
     - language: node_js
