@@ -1,6 +1,9 @@
 <html>
 <input type="file" id="fileElem" accept="image/*" style="display:none" onchange="handleFiles(this.files)">
-<a href="#" id="fileSelect">Select a file</a> 
+<a href="#" id="fileSelect">Select a file</a>
+<button type="button" id="nextBtn" onclick="prev()">&lt;</button> 
+<button type="button" id="nextBtn" onclick="next()">&gt;</button> 
+<div id="pageTracker">?/?</div>
 <div id="fileList">
   <p>No files selected!</p>
 </div>
@@ -8,18 +11,20 @@
 <canvas id="myCanvas" width="1200" height="800"></canvas>
 </div>
 Some more padding here
-<script type="text/javascript" src="js/lib.js"></script>
+<script type="text/javascript" src="lib.js"></script>
 <script>
 
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
-ctx.beginPath();
-ctx.rect(0, 0, 1200, 800);
-ctx.fillStyle = '#000000';//convertHexStringToRgb("0"); //"#FF0000";
-ctx.fill();
-ctx.closePath();
-
+function clearCanvas() {
+  ctx.beginPath();
+  ctx.rect(0, 0, 1200, 800);
+  ctx.fillStyle = '#000000';//convertHexStringToRgb("0"); //"#FF0000";
+  ctx.fill();
+  ctx.closePath();
+}
+clearCanvas();
 window.URL = window.URL || window.webkitURL;
 
 const fileSelect = document.getElementById("fileSelect"),
@@ -33,14 +38,52 @@ fileSelect.addEventListener("click", function (e) {
   e.preventDefault(); // prevent navigation to "#"
 }, false);
 
+let hexArray = [];
+let offset = 0;
+let numPages = 0;
+
+function updateNumPages() {
+  const elem = document.getElementById("pageTracker");
+  elem.innerHTML = `${offset+1}/${numPages}`;
+}
+
+function next() {
+  if (offset < numPages-1) {
+    console.log('next');
+    offset += 1;
+    updateNumPages();
+    draw();
+  }
+}
+
+function prev() {
+  if (offset > 0) {
+    offset -= 1;
+    updateNumPages();
+    draw();
+  }
+}
+
+function draw() {
+  clearCanvas();
+  const currOffset = offset*(1200*800/5/5);
+  const nextOffset = (offset+1)*1200*800/5/5;
+  console.log(currOffset);
+  console.log(hexArray.length);
+  console.log(nextOffset);
+  
+  for(let j=currOffset; (j<hexArray.length) && (j<nextOffset); j++) {
+      drawSquare(hexArray[j], j%(1200*800/5/5), ctx, 5);
+    }
+};
+
 function foo(file) {
   const fr = new FileReader();
   fr.onload = () => {
     const data = fr.result;
     let array = new Uint8Array(data);
-    console.log(array.length);
-    digestMessage(array).then(h => console.log(h));
-    let hexArray = []; 
+    console.log(`length of data: ${array.length}`);
+    digestMessage(array).then(h => console.log(`SHA256: ${h}`));
     for(let i=0; i<array.length; i++) {
       const val = array[i].toString(16);
       const hex = formatByteStringToHexNumbersArray(val);
@@ -49,9 +92,9 @@ function foo(file) {
       hexArray.push(hex[0]);
       hexArray.push(hex[1]);
     }
-    for(let j=0; j< hexArray.length; j++) {
-      drawSquare(hexArray[j], j, ctx, 5);
-    }
+    numPages = Math.ceil(hexArray.length / (1200*800/(5*5)));
+    draw();
+    updateNumPages();
   }
   fr.readAsArrayBuffer(file);
 };

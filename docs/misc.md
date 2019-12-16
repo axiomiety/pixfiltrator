@@ -39,6 +39,8 @@
  outside pixels and higher weight to the inner ones
  * add type annotations!
   * take a screenshot of the screen programatically
+ * clean up the paging - it's ugly...
+ * DONE: deal with paging on the client side for larger files
  * DONE: migrate to argparse for Python - need to pass in the number of bytes too
  * DONE: work out the scaling as we attribute a lower weight to the 
  * DONE: merge bytes in the final array! otherwise we always represent the lower portion
