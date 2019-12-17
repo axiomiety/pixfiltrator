@@ -34,6 +34,13 @@
  * Only useful on the client though
  * But could be used to 'download' binaries onto the client whilst bypassing some restrictions
 
+## Taking screenshots
+
+ * This will be OS-dependent
+ * For Windows it looks like we can use Powershell: https://gallery.technet.microsoft.com/scriptcenter/eeff544a-f690-4f6b-a586-11eea6fc5eb8
+   * We can hook this up to a timer - it can take a number of 'pages' as an argument
+ * The parsing script can be updated to take a directory and parse each screenshot alphabetically
+
 ## TODO:
  * stop using print statements and set some proper logging!
  outside pixels and higher weight to the inner ones
