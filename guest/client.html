@@ -2,6 +2,7 @@
 <input type="file" id="fileElem" accept="image/*" style="display:none" onchange="handleFiles(this.files)">
 <a href="#" id="fileSelect">Select a file</a>
 <button type="button" id="nextBtn" onclick="prev()">&lt;</button> 
+<button type="button" id="nextBtn" onclick="play()">Play</button> 
 <button type="button" id="nextBtn" onclick="next()">&gt;</button> 
 <div id="pageTracker">?/?</div>
 <div id="fileList">
@@ -16,6 +17,12 @@ Some more padding here
 
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
+
+let interval = undefined;
+
+function play() {
+    setInterval(next, 1000);
+}
 
 function clearCanvas() {
   ctx.beginPath();
@@ -53,6 +60,10 @@ function next() {
     offset += 1;
     updateNumPages();
     draw();
+  } else {
+    if (interval !== undefined) {
+      clearInterval(interval);
+    }
   }
 }
 
