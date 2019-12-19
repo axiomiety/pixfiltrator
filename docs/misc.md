@@ -40,6 +40,10 @@
  * For Windows it looks like we can use Powershell: https://gallery.technet.microsoft.com/scriptcenter/eeff544a-f690-4f6b-a586-11eea6fc5eb8
    * We can hook this up to a timer - it can take a number of 'pages' as an argument
  * The parsing script can be updated to take a directory and parse each screenshot alphabetically
+ * The script above didn't work - but it looks like user32.dll exposes everything we need
+   * https://stackoverflow.com/questions/5878963/getting-active-window-coordinates-and-height-width-in-c-sharp
+   * https://docs.microsoft.com/en-us/dotnet/api/system.drawing.graphics.copyfromscreen?view=netframework-4.8
+   * There's some here too, which leverages PrintScr essentially: https://powershell.org/2013/01/powershell-screen-shots/
 
 ## TODO:
  * stop using print statements and set some proper logging!
