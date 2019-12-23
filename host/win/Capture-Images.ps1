@@ -1,6 +1,6 @@
 ﻿param(
     [string]$outDir = "C:\temp",
-    [int32]$numPages = 5
+    [int32]$numPages = 2
 )
 
 #https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell#2970339
@@ -20,6 +20,9 @@ public class Utils {
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
+
+    [DllImport("User32.dll")]
+    public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
 }
 public struct RECT
 {
@@ -32,6 +35,17 @@ public struct RECT
 "@
 
 Add-Type $SOURCE;
+
+function Count-Down {
+    param(
+        [int]$numSeconds
+        )
+
+    For ($i = $numSeconds; $i -gt 0; $i--) {
+        Write-Host "$($i)..."
+        Start-Sleep -Seconds 1;
+    }
+}
 
 function Snap {
     param(
@@ -56,14 +70,26 @@ function Snap {
     Write-Output "saved"
 }
 
-$handle = [Utils]::GetForegroundWindow();
+Write-Host "Please select your active window in"
+Count-Down 3
 
-Write-Host "Screenshots will be saved in $outDir $($handle.GetType())"
+
+$handle = [Utils]::GetForegroundWindow()
+$myPid = New-Object System.Int32;
+[Utils]::GetWindowThreadProcessId($handle, [ref]$myPid);
+
+$proc = Get-Process -Id $myPid
+Write-Host "Active window was selected to be $($proc.Name)/$($proc.Description) with PID $($myPid)"
+Write-Host "Press Enter to continue"
+Read-Host
+Write-Host "Screenshots will be saved in $outDir"
+Write-Host "Starting in"
+Count-Down 4
 
 For ($i=1; $i -le $numPages; $i++) {
     $fname = "$($outDir)\capture$($i).png"
     Write-Host $fname;
-   
+    # note how Powershell-defined functoins are called!
     Snap $handle $fname;
     Start-Sleep -Seconds 1;
 }
