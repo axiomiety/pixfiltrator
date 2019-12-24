@@ -17,21 +17,14 @@ Some more padding here
 
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-
+const sqWidth = 5;
 let interval = undefined;
 
 function play() {
     setInterval(next, 1000);
 }
 
-function clearCanvas() {
-  ctx.beginPath();
-  ctx.rect(0, 0, 1200, 800);
-  ctx.fillStyle = '#000000';//convertHexStringToRgb("0"); //"#FF0000";
-  ctx.fill();
-  ctx.closePath();
-}
-clearCanvas();
+clearCanvas(ctx);
 window.URL = window.URL || window.webkitURL;
 
 const fileSelect = document.getElementById("fileSelect"),
@@ -49,14 +42,8 @@ let hexArray = [];
 let offset = 0;
 let numPages = 0;
 
-function updateNumPages() {
-  const elem = document.getElementById("pageTracker");
-  elem.innerHTML = `${offset+1}/${numPages}`;
-}
-
 function next() {
   if (offset < numPages-1) {
-    console.log('next');
     offset += 1;
     updateNumPages();
     draw();
@@ -76,15 +63,17 @@ function prev() {
 }
 
 function draw() {
-  clearCanvas();
-  const currOffset = offset*(1200*800/5/5);
-  const nextOffset = (offset+1)*1200*800/5/5;
+  const canvasWidth = ctx.canvas.width;
+  const canvasHeight = ctx.canvas.height;
+  clearCanvas(ctx);
+  const currOffset = offset*(canvasWidth*canvasHeight/sqWidth/sqWidth);
+  const nextOffset = (offset+1)*canvasWidth*canvasHeight/sqWidth/sqWidth;
   console.log(currOffset);
   console.log(hexArray.length);
   console.log(nextOffset);
   
   for(let j=currOffset; (j<hexArray.length) && (j<nextOffset); j++) {
-      drawSquare(hexArray[j], j%(1200*800/5/5), ctx, 5);
+      drawSquare(hexArray[j], j%(canvasWidth*canvasHeight/sqWidth/sqWidth), ctx, sqWidth);
     }
 };
 
@@ -103,7 +92,7 @@ function foo(file) {
       hexArray.push(hex[0]);
       hexArray.push(hex[1]);
     }
-    numPages = Math.ceil(hexArray.length / (1200*800/(5*5)));
+    numPages = calcNumPages(hexArray.length, ctx, sqWidth);
     draw();
     updateNumPages();
   }

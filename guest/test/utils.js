@@ -1,9 +1,11 @@
 const wish = require('wish');
 const assert = require('assert');
 //import convertHexStringToRgb from '../index.js';
-const { convertHexStringToRgba, formatByteStringToHexNumbersArray } = require('../lib.js');
+const { convertHexStringToRgba,
+        formatByteStringToHexNumbersArray,
+        getNumSquaresPerPage } = require('../lib.js');
 
-describe('utilities', function() {
+describe('Utilities', function() {
     it('converts a hexadecimal string (0-f) to an RGB triplet', function() {
         let ret = convertHexStringToRgba('0');
         wish( 'rgba(0, 0, 0, 1)' === ret);
@@ -20,5 +22,25 @@ describe('utilities', function() {
         assert.deepEqual( ['0', '2'], ret );
         ret = formatByteStringToHexNumbersArray('1a');
         assert.deepEqual( ['1', 'a'], ret );
+    });
+
+    it('calculates the number of squares per page', function() {
+        /*  if we have a width of 200 and a height of 100,
+            and the area of each square is 10x10, we would
+            expect 200 squares
+        */
+       const ctx = {
+        canvas: {
+            width: 200,
+            height: 100
+        }
+       };
+       const sqWidth = 10;
+       wish( 200 === getNumSquaresPerPage(ctx, sqWidth, false) );
+
+       /*   if we add meta-data, that will occupy the first row
+            that's 10x200 pixels for a total of 20 squares
+       */
+       wish( 180 === getNumSquaresPerPage(ctx, sqWidth, true) );
     });
 });

@@ -33,6 +33,7 @@
  * Firefox can take screenshots! https://stackoverflow.com/questions/25332458/firefox-addon-api-for-taking-screenshot#25359866
  * Only useful on the client though
  * But could be used to 'download' binaries onto the client whilst bypassing some restrictions
+ * Do we need something like a start-frame delimiter? e.g. 0xdeadbeef all over the screen
 
 ## Taking screenshots
 
@@ -44,6 +45,7 @@
    * https://stackoverflow.com/questions/5878963/getting-active-window-coordinates-and-height-width-in-c-sharp
    * https://docs.microsoft.com/en-us/dotnet/api/system.drawing.graphics.copyfromscreen?view=netframework-4.8
    * There's some here too, which leverages PrintScr essentially: https://powershell.org/2013/01/powershell-screen-shots/
+ * We can take screenshots every second and let the parser sift through 'useful' ones - assuming we encode some metadata in the image
 
 ## TODO:
  * stop using print statements and set some proper logging!
@@ -51,6 +53,7 @@
  * add type annotations!
   * take a screenshot of the screen programatically
  * clean up the paging - it's ugly...
+ * DONE: remove hard-coded refs to canvas size in js library
  * DONE: deal with paging on the client side for larger files
  * DONE: migrate to argparse for Python - need to pass in the number of bytes too
  * DONE: work out the scaling as we attribute a lower weight to the 

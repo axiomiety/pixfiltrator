@@ -28,19 +28,42 @@ const formatByteStringToHexNumbersArray = (str) => {
   return ret;
 }
 
+const clearCanvas = (ctx) => {
+  ctx.beginPath();
+  ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.fillStyle = '#000000';//convertHexStringToRgb("0"); //"#FF0000";
+  ctx.fill();
+  ctx.closePath();
+};
+
 const drawSquare = (hexStr, idx, ctx, width) => {
-  const startX = idx*width % 1200; // width
-  const startY = Math.floor(idx*width/1200)*width;
-  /*
-  if (startX === 0) {
-    console.log(startY);
-  }
-  */
+  const canvas_width = ctx.canvas.width;
+  const startX = idx*width % canvas_width;
+  const startY = Math.floor(idx*width/canvas_width)*width;
+ 
   ctx.beginPath();
   ctx.rect(startX, startY, width, width);
   ctx.fillStyle = convertHexStringToRgba(hexStr);
   ctx.fill();
   ctx.closePath();
+}
+
+const getNumSquaresPerPage = (ctx, sqWidth, withMeta=true) => {
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
+
+  const metaData = withMeta ? w*sqWidth : 0;
+  return (w*h-metaData)/sqWidth/sqWidth;
+};
+
+const calcNumPages = (numHalfBytes, ctx, sqWidth) => {
+  const numSquaresPerPage = getNumSquaresPerPage(ctx, sqWidth);
+  return Math.ceil(numHalfBytes / numSquaresPerPage);
+};
+
+const updateNumPages = () => {
+  const elem = document.getElementById("pageTracker");
+  elem.innerHTML = `${offset+1}/${numPages}`;
 }
 
 const handleFiles = (files) => {
@@ -82,3 +105,4 @@ async function digestMessage(msgUint8) {
 
 exports.convertHexStringToRgba = convertHexStringToRgba;
 exports.formatByteStringToHexNumbersArray = formatByteStringToHexNumbersArray;
+exports.getNumSquaresPerPage = getNumSquaresPerPage;
