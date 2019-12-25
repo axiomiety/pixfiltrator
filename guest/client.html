@@ -41,12 +41,13 @@ fileSelect.addEventListener("click", function (e) {
 let hexArray = [];
 let offset = 0;
 let numPages = 0;
+let numSquaresPerPage = 0;
 
 function next() {
   if (offset < numPages-1) {
     offset += 1;
     updateNumPages();
-    draw();
+    draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
   } else {
     if (interval !== undefined) {
       clearInterval(interval);
@@ -58,24 +59,9 @@ function prev() {
   if (offset > 0) {
     offset -= 1;
     updateNumPages();
-    draw();
+    draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
   }
 }
-
-function draw() {
-  const canvasWidth = ctx.canvas.width;
-  const canvasHeight = ctx.canvas.height;
-  clearCanvas(ctx);
-  const currOffset = offset*(canvasWidth*canvasHeight/sqWidth/sqWidth);
-  const nextOffset = (offset+1)*canvasWidth*canvasHeight/sqWidth/sqWidth;
-  console.log(currOffset);
-  console.log(hexArray.length);
-  console.log(nextOffset);
-  
-  for(let j=currOffset; (j<hexArray.length) && (j<nextOffset); j++) {
-      drawSquare(hexArray[j], j%(canvasWidth*canvasHeight/sqWidth/sqWidth), ctx, sqWidth);
-    }
-};
 
 function foo(file) {
   const fr = new FileReader();
@@ -83,17 +69,16 @@ function foo(file) {
     const data = fr.result;
     let array = new Uint8Array(data);
     console.log(`length of data: ${array.length}`);
-    digestMessage(array).then(h => console.log(`SHA256: ${h}`));
+    digestMessage('SHA-256', array).then(h => console.log(`SHA256: ${h}`));
     for(let i=0; i<array.length; i++) {
-      const val = array[i].toString(16);
-      const hex = formatByteStringToHexNumbersArray(val);
-      // this is a bit weird - we should be able
-      // to do this on the fly by doing x2
+      // TODO: change this to .padStart(2,'0');
+      const hex = array[i].toString(16).padStart(2, '0');
       hexArray.push(hex[0]);
       hexArray.push(hex[1]);
     }
-    numPages = calcNumPages(hexArray.length, ctx, sqWidth);
-    draw();
+    numSquaresPerPage = getNumSquaresPerPage(ctx, sqWidth, true);
+    numPages = calcNumPages(hexArray.length, numSquaresPerPage);
+    draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
     updateNumPages();
   }
   fr.readAsArrayBuffer(file);

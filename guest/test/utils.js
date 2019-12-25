@@ -17,14 +17,7 @@ describe('Utilities', function() {
         wish( 'rgba(255, 255, 195, 1)' === ret);
     });
 
-    it('converts a string representing a byte into its individual hex components, 0-padded', function() {
-        let ret = formatByteStringToHexNumbersArray('02');
-        assert.deepEqual( ['0', '2'], ret );
-        ret = formatByteStringToHexNumbersArray('1a');
-        assert.deepEqual( ['1', 'a'], ret );
-    });
-
-    it('calculates the number of squares per page', function() {
+    it('calculates the number of squares per page, with/without metadata', function() {
         /*  if we have a width of 200 and a height of 100,
             and the area of each square is 10x10, we would
             expect 200 squares

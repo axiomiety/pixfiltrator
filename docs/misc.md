@@ -48,11 +48,12 @@
  * We can take screenshots every second and let the parser sift through 'useful' ones - assuming we encode some metadata in the image
 
 ## TODO:
- * stop using print statements and set some proper logging!
+ * stop using print statements in Python and set some proper logging!
  outside pixels and higher weight to the inner ones
- * add type annotations!
-  * take a screenshot of the screen programatically
- * clean up the paging - it's ugly...
+ * add type annotations to the Python portion
+ * change the paging mechanism to be async based on the digest (instead of every second)
+ * DONE: take a screenshot of the screen programatically
+ * DONE: clean up the paging - it's ugly... (now it's a little nicer)
  * DONE: remove hard-coded refs to canvas size in js library
  * DONE: deal with paging on the client side for larger files
  * DONE: migrate to argparse for Python - need to pass in the number of bytes too
