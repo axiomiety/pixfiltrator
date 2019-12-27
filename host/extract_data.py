@@ -1,10 +1,13 @@
+import argparse
+import binascii
 import cv2
-import numpy as np
 import json
-from itertools import chain
+import numpy as np
 import sys
 
-import argparse
+from collections import namedtuple
+from itertools import chain
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--image',
     action='store',
@@ -20,19 +23,26 @@ parser.add_argument('--out',
     action='store',
     default='out.bin',
     help='out path for the decoded file')
-parser.add_argument('--withSha256',
+parser.add_argument('--verify',
     action='store_true',
     default=False,
-    help='toggle computing the SHA256 of the decoded file')
+    help='toggle computing the SHA1 of the decoded block and compares with what was extracted from the metadata')
 parser.add_argument('--blockSize',
     action='store',
     default=5,
     type=int,
     help='the width of a block in pixels')
+parser.add_argument('--regionOnGuest',
+    action='store',
+    default='1200x800',
+    type=str,
+    help='width x height area containing the data on the guest')
 args = parser.parse_args()
 
 
 img = cv2.imread(args.image, cv2.IMREAD_UNCHANGED)
+
+Metadata = namedtuple('Metadata', 'page_num num_pages num_bytes_on_page sha1')
 
 # accessing a pixel is as easy as accessing the x-y coordinate: img[x,y]
 # the array returned though is in BGR, not RGB
@@ -56,7 +66,8 @@ def convertToPaletteScale(val):
 def rescale(image):
     # is this the best way to scale it?
     # small = cv2.resize(image, (0,0), fx=2/3, fy=2/3) 
-    resized_image = cv2.resize(image, (1200, 800))
+    w, h = [int(r) for r in args.regionOnGuest.split('x')]
+    resized_image = cv2.resize(image, (w, h))
     return resized_image
 
 def identifyBlock(img, r, c, w):
@@ -140,23 +151,40 @@ def combine_half_bytes(arr):
     pairs = zip(arr[::2], arr[1::2])
     return [((a<<4) + b) for (a,b) in pairs]
 
+def extract_meta_data(byte_array, meta_data_length):
+    ret = {}
+    byteorder = 'big'
+    data = byte_array[-meta_data_length:]
+    page_num = int.from_bytes(data[:2], byteorder=byteorder)
+    num_of_pages = int.from_bytes(data[2:4], byteorder=byteorder)
+    num_bytes_on_page = int.from_bytes(data[4:6], byteorder=byteorder)
+    sha1 = binascii.hexlify(data[6:26]) # 20 bytes
+    print(f'{page_num}/{num_of_pages} - {num_bytes_on_page} - {sha1}')
+    return Metadata(page_num, num_of_pages, num_bytes_on_page, sha1)
+
+
 if __name__ == '__main__':
     rimg = rescale(img)
-    cv2.namedWindow('output', cv2.WINDOW_NORMAL) 
-    cv2.imshow('output',rimg)
-    cv2.waitKey(0)
-    width = args.blockSize
-    blocks = blockify(rimg, width)
-    extract = weigh_blocks(blocks, width, sum_values=True)
+    #cv2.namedWindow('output', cv2.WINDOW_NORMAL) 
+    #cv2.imshow('output',rimg)
+    #cv2.waitKey(0)
+    sqWidth = args.blockSize
+    blocks = blockify(rimg, sqWidth)
+    extract = weigh_blocks(blocks, sqWidth, sum_values=True)
     int_array = combine_half_bytes([convertToPaletteScale(ex) for ex in extract])
-    print(int_array)
-    byte_array = bytearray(int_array)[:args.numBytes]
-    print(byte_array)
-    if args.withSha256:
+    byte_array_all = bytearray(int_array)
+    w, h = [int(r) for r in args.regionOnGuest.split('x')]
+    # e.g. 1200/5 = 240 squares, which is 120 bytes
+    meta_data_length = w//sqWidth//2
+    meta_data = extract_meta_data(byte_array_all, meta_data_length)
+    byte_array = byte_array_all[:meta_data.num_bytes_on_page]
+
+    if args.verify:
         import hashlib
-        m = hashlib.sha256()
+        m = hashlib.sha1()
         m.update(byte_array)
-        print(m.hexdigest())
+        print(f'computed  sha1: {m.hexdigest()}')
+        print(f'extracted sha1: {meta_data.sha1.decode("ascii")}')
     with open(args.out, 'wb') as f:
         f.write(byte_array)
         print(f'wrote file to {args.out}')

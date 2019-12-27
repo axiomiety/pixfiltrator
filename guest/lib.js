@@ -102,11 +102,14 @@ const drawMeta = (ctx, sqWidth, meta) => {
   }
 };
 
+const fromHexString = hexString =>
+  new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
 const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages) => {
   /*  metadata format is as follows
        2 bytes for the page number
        2 bytes for the total number of pages
-       2 bytes for the number of squares on this page
+       2 bytes for the number of bytes on this page
       20 bytes for the SHA-1 of the chunk displayed (excludes metadata)
       --
       26 bytes, which is 52 squares
@@ -116,13 +119,16 @@ const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfB
 
   const currOffset = offset*numSquaresPerPage;
   const data = hexArray.slice(currOffset, currOffset + numHalfBytesOnPage);
-  const array = new Uint8Array(data);
+  // to compute SHA1 'properly', we need to convert our half-bytes back into bytes
+  const array = new Uint8Array(fromHexString(data.join('')));
   digestMessage('SHA-1', array).then(digest => {
     console.log(`SHA-1 of block ${offset}: ${digest}`);
-    const pageNum = offset.toString(16).padStart(4, '0');
+    // +1 because we start at offset 0 for the first page
+    const pageNum = (offset+1).toString(16).padStart(4, '0');
     const totNumPages = numPages.toString(16).padStart(4, '0');
-    const sqOnPage = numSquaresPerPage.toString(16).padStart(4,'0');
-    const meta = pageNum + totNumPages + sqOnPage + digest;
+    const numBytesOnPage = (numHalfBytesOnPage/2).toString(16).padStart(4,'0');
+    const meta = pageNum + totNumPages + numBytesOnPage + digest;
+    console.log(meta);
     drawMeta(ctx, sqWidth, meta);
   });
 }
