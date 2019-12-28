@@ -1,0 +1,9 @@
+#container{
+    display:flex;
+    flex-direction:row;
+    justify-content: flex-start;
+}
+
+#left{
+    width: 400px;
+}

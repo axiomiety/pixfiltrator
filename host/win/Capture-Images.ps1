@@ -1,9 +1,8 @@
 ﻿param(
     [string]$outDir = "C:\temp",
-    [int32]$numPages = 2
+    [int32]$max = 20,
+    [int32]$delay = 5
 )
-
-#https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell#2970339
 
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 
@@ -23,6 +22,9 @@ public class Utils {
 
     [DllImport("User32.dll")]
     public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
+
+    [DllImport("user32.dll")]
+    public static extern int SetForegroundWindow(IntPtr hwnd);
 }
 public struct RECT
 {
@@ -73,21 +75,22 @@ function Snap {
 Write-Host "Please select your active window in"
 Count-Down 3
 
-
 $handle = [Utils]::GetForegroundWindow()
 $myPid = New-Object System.Int32;
 [Utils]::GetWindowThreadProcessId($handle, [ref]$myPid);
 
 $proc = Get-Process -Id $myPid
 Write-Host "Active window was selected to be $($proc.Name)/$($proc.Description) with PID $($myPid)"
-Write-Host "Press Enter to continue"
+Write-Host "Screenshots will be saved in $outDir - a maximum of $max captures will be taken"
+Write-Host "Press Ctrl+C to stop any time. Press any key to start after a $delay seconds delay"
 Read-Host
-Write-Host "Screenshots will be saved in $outDir"
-Write-Host "Starting in"
-Count-Down 4
+[Utils]::SetForegroundWindow($handle);
+Count-Down $delay
 
-For ($i=1; $i -le $numPages; $i++) {
-    $fname = "$($outDir)\capture$($i).png"
+
+For ($i=1; $i -le $max; $i++) {
+    $captureCountFmt = "{0:00000}" -f $i
+    $fname = "$($outDir)\capture$($captureCountFmt).png"
     Write-Host $fname;
     # note how Powershell-defined functoins are called!
     Snap $handle $fname;

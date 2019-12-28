@@ -46,12 +46,13 @@
    * https://docs.microsoft.com/en-us/dotnet/api/system.drawing.graphics.copyfromscreen?view=netframework-4.8
    * There's some here too, which leverages PrintScr essentially: https://powershell.org/2013/01/powershell-screen-shots/
  * We can take screenshots every second and let the parser sift through 'useful' ones - assuming we encode some metadata in the image
+   * sounds like a better idea - 
 
 ## TODO:
  * stop using print statements in Python and set some proper logging!
- outside pixels and higher weight to the inner ones
  * add type annotations to the Python portion
- * change the paging mechanism to be async based on the digest (instead of every second)
+ * instead of logging to the console, log to the screen? easier debugging
+ * DONE: change the paging mechanism to be async based on the digest (instead of every second)
  * DONE: take a screenshot of the screen programatically
  * DONE: clean up the paging - it's ugly... (now it's a little nicer)
  * DONE: remove hard-coded refs to canvas size in js library

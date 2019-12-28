@@ -1,27 +1,32 @@
 <html>
-<input type="file" id="fileElem" accept="image/*" style="display:none" onchange="handleFiles(this.files)">
-<a href="#" id="fileSelect">Select a file</a>
-<button type="button" id="nextBtn" onclick="prev()">&lt;</button> 
-<button type="button" id="nextBtn" onclick="play()">Play</button> 
-<button type="button" id="nextBtn" onclick="next()">&gt;</button> 
-<div id="pageTracker">?/?</div>
-<div id="fileList">
-  <p>No files selected!</p>
-</div>
-<div align="center">
-<canvas id="myCanvas" width="1200" height="800"></canvas>
-</div>
-Some more padding here
+  <head>
+    <link rel="stylesheet" type="text/css" href="client.css">
+  </head>
+  <div id="container">
+    <div id="left">
+      <input type="file" id="fileElem" accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+      <a href="#" id="fileSelect">Select a file</a>
+      <button type="button" id="nextBtn" onclick="prev()">&lt;</button> 
+      <button type="button" id="nextBtn" onclick="play()">Play</button> 
+      <button type="button" id="nextBtn" onclick="next()">&gt;</button> 
+      <div id="pageTracker">?/?</div>
+      <div id="fileList">
+        <p>No files selected!</p>
+      </div>
+    </div>
+    <div id="right">
+      <canvas id="myCanvas" width="1200" height="800"></canvas>
+    </div>
+
 <script type="text/javascript" src="lib.js"></script>
 <script>
 
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 const sqWidth = 5;
-let interval = undefined;
 
 function play() {
-    setInterval(next, 1000);
+    setTimeout(draw, 3*1000, ctx, offset, hexArray, numSquaresPerPage, numPages, true);
 }
 
 clearCanvas(ctx);
@@ -43,15 +48,11 @@ let offset = 0;
 let numPages = 0;
 let numSquaresPerPage = 0;
 
-function next() {
+function next(playNext) {
   if (offset < numPages-1) {
     offset += 1;
     updateNumPages();
-    draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
-  } else {
-    if (interval !== undefined) {
-      clearInterval(interval);
-    }
+    draw(ctx, offset, hexArray, numSquaresPerPage, numPages, playNext);
   }
 }
 
@@ -59,7 +60,7 @@ function prev() {
   if (offset > 0) {
     offset -= 1;
     updateNumPages();
-    draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
+    draw(ctx, offset, hexArray, numSquaresPerPage, numPages, false);
   }
 }
 

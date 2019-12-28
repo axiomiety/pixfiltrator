@@ -52,7 +52,7 @@ const calcNumPages = (numHalfBytes, numSquaresPerPage) => {
 
 const updateNumPages = () => {
   const elem = document.getElementById("pageTracker");
-  elem.innerHTML = `${offset+1}/${numPages}`;
+  elem.innerHTML = `<h1>page ${offset+1}/${numPages}</h1>`;
 }
 
 const handleFiles = (files) => {
@@ -64,20 +64,17 @@ const handleFiles = (files) => {
     fileList.appendChild(list);
     // technically there's only one file, but heh...
     for (let i = 0; i < files.length; i++) {
-      const li = document.createElement("li");
-      list.appendChild(li);
-      
-      const img = document.createElement("img");
-      img.src = window.URL.createObjectURL(files[i]);
-      img.height = 60;
-      img.onload = function() {
-        window.URL.revokeObjectURL(this.src);
-      }
-      li.appendChild(img);
+      const li_fname = document.createElement("li");
+      list.appendChild(li_fname);      
       const info = document.createElement("span");
-      info.innerHTML = files[i].name + ": " + files[i].size + " bytes";
-      li.appendChild(info);
-
+      info.innerHTML = files[i].name;
+      li_fname.appendChild(info);
+      const li_size = document.createElement("li");
+      list.appendChild(li_size);      
+      const sz = document.createElement("span");
+      sz.innerHTML = files[i].size + " bytes";
+      li_size.appendChild(sz);
+      
       foo(files[i]);
     }
   }
@@ -105,16 +102,17 @@ const drawMeta = (ctx, sqWidth, meta) => {
 const fromHexString = hexString =>
   new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 
-const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages) => {
+const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages, playNext) => {
   /*  metadata format is as follows
        2 bytes for the page number
        2 bytes for the total number of pages
        2 bytes for the number of bytes on this page
       20 bytes for the SHA-1 of the chunk displayed (excludes metadata)
+       4 bytes for 0xFEEDC0DE - metadata has successfully been added
       --
-      26 bytes, which is 52 squares
+      30 bytes, which is 60 squares
 
-      this means we expect a width of at least 52*sqWidth pixels on the canvas
+      this means we expect a width of at least 60*sqWidth pixels on the canvas
   */
 
   const currOffset = offset*numSquaresPerPage;
@@ -127,30 +125,33 @@ const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfB
     const pageNum = (offset+1).toString(16).padStart(4, '0');
     const totNumPages = numPages.toString(16).padStart(4, '0');
     const numBytesOnPage = (numHalfBytesOnPage/2).toString(16).padStart(4,'0');
-    const meta = pageNum + totNumPages + numBytesOnPage + digest;
-    console.log(meta);
+    const meta = pageNum + totNumPages + numBytesOnPage + digest + 'feedc0de';
+    //console.log(meta);
     drawMeta(ctx, sqWidth, meta);
+    if (playNext === true) {
+      setTimeout(next, 1000, offset < numPages);
+    }
   });
 }
 
-const draw = (ctx, offset, arr, numSquaresPerPage, numPages) => {
+const draw = (ctx, offset, hexArray, numSquaresPerPage, numPages, playNext) => {
   const canvasWidth = ctx.canvas.width;
   const canvasHeight = ctx.canvas.height;
   clearCanvas(ctx);
   const currOffset = offset*numSquaresPerPage;
   const nextOffset = (offset+1)*numSquaresPerPage;
-  const numHalfBytesOnPage = hexArray.length - currOffset;
+  const numHalfBytesOnPage = Math.min(hexArray.length,nextOffset) - currOffset;
 
-  console.log(`pages: ${offset}/${numPages}`);
+  console.log(`pages: ${offset+1}/${numPages}`);
   console.log(`offsets - current: ${currOffset}, next: ${nextOffset}`);
   console.log(`number of half-bytes on page: ${numHalfBytesOnPage}`);
-
+  
   // 'draw' the squares
   for(let j=currOffset; (j<hexArray.length) && (j<nextOffset); j++) {
       drawSquare(hexArray[j], j%numSquaresPerPage, ctx, sqWidth);
   }
   // add the metadata
-  addMetaData(ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages);
+  addMetaData(ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages, playNext);
 };
 
 
