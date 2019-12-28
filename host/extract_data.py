@@ -39,9 +39,6 @@ parser.add_argument('--regionOnGuest',
     help='width x height area containing the data on the guest')
 args = parser.parse_args()
 
-
-img = cv2.imread(args.image, cv2.IMREAD_UNCHANGED)
-
 Metadata = namedtuple('Metadata', 'page_num num_pages num_bytes_on_page sha1')
 
 # accessing a pixel is as easy as accessing the x-y coordinate: img[x,y]
@@ -63,10 +60,10 @@ def convertToPaletteScale(val):
         quotient = min(16, quotient+1)
     return quotient
 
-def rescale(image):
+def rescale(image, regionOnGuest):
     # is this the best way to scale it?
     # small = cv2.resize(image, (0,0), fx=2/3, fy=2/3) 
-    w, h = [int(r) for r in args.regionOnGuest.split('x')]
+    w, h = [int(r) for r in regionOnGuest.split('x')]
     resized_image = cv2.resize(image, (w, h))
     return resized_image
 
@@ -162,29 +159,30 @@ def extract_meta_data(byte_array, meta_data_length):
     print(f'{page_num}/{num_of_pages} - {num_bytes_on_page} - {sha1}')
     return Metadata(page_num, num_of_pages, num_bytes_on_page, sha1)
 
-
-if __name__ == '__main__':
-    rimg = rescale(img)
-    #cv2.namedWindow('output', cv2.WINDOW_NORMAL) 
-    #cv2.imshow('output',rimg)
-    #cv2.waitKey(0)
-    sqWidth = args.blockSize
+def extract(image, sqWidth, regionOnGuest, outFile, verify):
+    img = cv2.imread(image, cv2.IMREAD_UNCHANGED)
+    rimg = rescale(img, regionOnGuest)
+    
     blocks = blockify(rimg, sqWidth)
     extract = weigh_blocks(blocks, sqWidth, sum_values=True)
     int_array = combine_half_bytes([convertToPaletteScale(ex) for ex in extract])
     byte_array_all = bytearray(int_array)
-    w, h = [int(r) for r in args.regionOnGuest.split('x')]
+    w, h = [int(r) for r in regionOnGuest.split('x')]
     # e.g. 1200/5 = 240 squares, which is 120 bytes
     meta_data_length = w//sqWidth//2
     meta_data = extract_meta_data(byte_array_all, meta_data_length)
     byte_array = byte_array_all[:meta_data.num_bytes_on_page]
 
-    if args.verify:
+    if verify:
         import hashlib
         m = hashlib.sha1()
         m.update(byte_array)
         print(f'computed  sha1: {m.hexdigest()}')
         print(f'extracted sha1: {meta_data.sha1.decode("ascii")}')
-    with open(args.out, 'wb') as f:
+    with open(outFile, 'wb') as f:
         f.write(byte_array)
-        print(f'wrote file to {args.out}')
+        print(f'wrote file to {outFile}')
+
+if __name__ == '__main__':
+    extract(args.image, args.blockSize, args.regionOnGuest, args.outFile, args.verify)
+    

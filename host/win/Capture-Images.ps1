@@ -1,6 +1,6 @@
 ﻿param(
     [string]$outDir = "C:\temp",
-    [int32]$max = 20,
+    [int32]$max = 22,
     [int32]$delay = 5
 )
 
@@ -90,7 +90,7 @@ Count-Down $delay
 
 For ($i=1; $i -le $max; $i++) {
     $captureCountFmt = "{0:00000}" -f $i
-    $fname = "$($outDir)\capture$($captureCountFmt).png"
+    $fname = "$($outDir)\capture_$($captureCountFmt).png"
     Write-Host $fname;
     # note how Powershell-defined functoins are called!
     Snap $handle $fname;

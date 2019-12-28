@@ -20,11 +20,15 @@ parser.add_argument('--coords',
     help='path of the file containing the position of the region of interest')
 args = parser.parse_args()
 
-print(f'processing {args.image}')
-img = cv2.imread(args.image, cv2.IMREAD_UNCHANGED)
-with open(args.coords, 'r') as f:
-    coords = json.load(f)
-x, y, w, h = itemgetter('x','y','w','h')(coords)
-roi = img[y:y+h, x:x+w]
-print(f'writing roi to {args.out}')
-cv2.imwrite(args.out, roi)
+def extract(src, dest, coords):
+    print(f'processing {src}')
+    img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
+    with open(coords, 'r') as f:
+        coords = json.load(f)
+    x, y, w, h = itemgetter('x','y','w','h')(coords)
+    roi = img[y:y+h, x:x+w]
+    print(f'writing roi to {dest}')
+    cv2.imwrite(dest, roi)
+
+if __name__ == '__main__':
+    extract(src=args.image, dest=args.out, coords=args.coords)
