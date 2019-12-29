@@ -8,37 +8,6 @@ import sys
 from collections import namedtuple
 from itertools import chain
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--image',
-    action='store',
-    default='roi.png',
-    type=str,
-    help='path to image containing the data')
-parser.add_argument('--numBytes',
-    action='store',
-    default=1200*800,
-    type=int,
-    help='length (in bytes) of the file encoded in the image')
-parser.add_argument('--out',
-    action='store',
-    default='out.bin',
-    help='out path for the decoded file')
-parser.add_argument('--verify',
-    action='store_true',
-    default=False,
-    help='toggle computing the SHA1 of the decoded block and compares with what was extracted from the metadata')
-parser.add_argument('--blockSize',
-    action='store',
-    default=5,
-    type=int,
-    help='the width of a block in pixels')
-parser.add_argument('--regionOnGuest',
-    action='store',
-    default='1200x800',
-    type=str,
-    help='width x height area containing the data on the guest')
-args = parser.parse_args()
-
 Metadata = namedtuple('Metadata', 'page_num num_pages num_bytes_on_page sha1')
 
 # accessing a pixel is as easy as accessing the x-y coordinate: img[x,y]
@@ -46,13 +15,10 @@ Metadata = namedtuple('Metadata', 'page_num num_pages num_bytes_on_page sha1')
 
 PALETTE_RGB_WIDTH = 47
 
-def convertBGRToHexScale(val):
-    (b, g, r) = val
-    s = b + g + r
-    return convertToPaletteScale(s)
-
 def convertToPaletteScale(val):
     val_int = int(val)
+    if val_int > 255*3:
+        raise ValueError(f'cannot convert {val_int} as it is greater than 255*3')
     remainder = val_int % PALETTE_RGB_WIDTH
     quotient = val_int // PALETTE_RGB_WIDTH
     if remainder > PALETTE_RGB_WIDTH/2:
@@ -99,8 +65,10 @@ def blockify(image, width, block_num=-1):
         for c in range(num_cols):
             tally = []
             for ii, i in enumerate(image[r*width:(r+1)*width]):
-                for jj, j in enumerate(i[c*width:(c+1)*width]):                    
-                    tally.append(sum(j))
+                for jj, j in enumerate(i[c*width:(c+1)*width]):
+                    # r,g,b are the first 3 components
+                    # the 4th is alpha which we don't want
+                    tally.append(np.sum(j[:3]))
             if counter == block_num:
                 print(f'average pixel: {sum(tally)/scale}')
                 identifyBlock(image, r, c, width)
@@ -160,12 +128,14 @@ def extract_meta_data(byte_array, meta_data_length):
     return Metadata(page_num, num_of_pages, num_bytes_on_page, sha1)
 
 def extract(image, sqWidth, regionOnGuest, outFile, verify):
+    print(f'processing {image}')
     img = cv2.imread(image, cv2.IMREAD_UNCHANGED)
     rimg = rescale(img, regionOnGuest)
     
     blocks = blockify(rimg, sqWidth)
     extract = weigh_blocks(blocks, sqWidth, sum_values=True)
-    int_array = combine_half_bytes([convertToPaletteScale(ex) for ex in extract])
+    ps = [convertToPaletteScale(ex) for ex in extract]
+    int_array = combine_half_bytes(ps)
     byte_array_all = bytearray(int_array)
     w, h = [int(r) for r in regionOnGuest.split('x')]
     # e.g. 1200/5 = 240 squares, which is 120 bytes
@@ -179,10 +149,44 @@ def extract(image, sqWidth, regionOnGuest, outFile, verify):
         m.update(byte_array)
         print(f'computed  sha1: {m.hexdigest()}')
         print(f'extracted sha1: {meta_data.sha1.decode("ascii")}')
+    if outFile is None:
+        import os
+        bp = os.path.dirname(image)
+        outFile = os.path.join(bp, f'block_{str(meta_data.page_num).zfill(5)}_{str(meta_data.num_pages).zfill(5)}_{meta_data.sha1.decode("ascii")}')
     with open(outFile, 'wb') as f:
         f.write(byte_array)
         print(f'wrote file to {outFile}')
 
 if __name__ == '__main__':
-    extract(args.image, args.blockSize, args.regionOnGuest, args.outFile, args.verify)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--image',
+        action='store',
+        default='roi.png',
+        type=str,
+        help='path to image containing the data')
+    parser.add_argument('--numBytes',
+        action='store',
+        default=1200*800,
+        type=int,
+        help='length (in bytes) of the file encoded in the image')
+    parser.add_argument('--out',
+        action='store',
+        default='out.bin',
+        help='out path for the decoded file')
+    parser.add_argument('--verify',
+        action='store_true',
+        default=False,
+        help='toggle computing the SHA1 of the decoded block and compares with what was extracted from the metadata')
+    parser.add_argument('--blockSize',
+        action='store',
+        default=5,
+        type=int,
+        help='the width of a block in pixels')
+    parser.add_argument('--regionOnGuest',
+        action='store',
+        default='1200x800',
+        type=str,
+        help='width x height area containing the data on the guest')
+    args = parser.parse_args()
+    extract(args.image, args.blockSize, args.regionOnGuest, args.out, args.verify)
     

@@ -1,5 +1,5 @@
 import numpy as np
-from extract_data import convertBGRToHexScale, PALETTE_RGB_WIDTH, blockify, weigh_blocks, convertToPaletteScale, combine_half_bytes
+from extract_data import PALETTE_RGB_WIDTH, blockify, weigh_blocks, convertToPaletteScale, combine_half_bytes
 
 class MockImage(object):
 
@@ -51,14 +51,6 @@ def test_combine_half_bytes():
     half_bytes1 = [5,2]
     assert combine_half_bytes(half_bytes1) == [0x52]    
     
-def test_scale_conversion():
-    assert 0 == convertBGRToHexScale([0,0,0])
-    # below threshold
-    assert 1 == convertBGRToHexScale([PALETTE_RGB_WIDTH + PALETTE_RGB_WIDTH//2,0,0])
-    # above threshold
-    assert 2 == convertBGRToHexScale([PALETTE_RGB_WIDTH + PALETTE_RGB_WIDTH//2+1,0,0])
-    assert 15 == convertBGRToHexScale([255,255,200])
-
 def test_blockify():
     img1 = [
         [ (1,1,1), (1,1,1) ],
@@ -67,8 +59,9 @@ def test_blockify():
     assert [[3], [3], [3], [3]] == blockify(MockImage(img1), 1)
     assert [[3, 3, 3, 3]] == blockify(MockImage(img1), 2)
 
+    # adding an alpha component - shouldn't have any impact
     img2 = [
-        [ (1,1,1), (1,1,1), (4,4,4), (4,4,4) ],
+        [ (1,1,1,255), (1,1,1,255), (4,4,4), (4,4,4) ],
         [ (1,1,1), (1,1,1), (4,4,4), (4,4,4) ],
         [ (3,3,3), (3,3,3), (2,2,2), (2,2,2) ],
         [ (3,3,3), (3,3,3), (2,2,2), (2,2,2) ],

@@ -1,6 +1,6 @@
 ﻿param(
     [string]$outDir = "C:\temp",
-    [int32]$max = 22,
+    [int32]$max = 30,
     [int32]$delay = 5
 )
 
