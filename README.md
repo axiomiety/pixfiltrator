@@ -10,6 +10,9 @@ In a nutshell, `pixfiltrator` allows you to transfer (binary) files using pixels
 
 A file is broken down into 'pages' which roughly represent how many bytes can be displayed on a single screen. The host takes a screenshot of each of those pages and then processes them to recover the original file - but don't worry, all of that is pretty well automated.
 
+Sample: ![paging animation](https://github.com/axiomiety/pixfiltrator/blob/master/docs/paging1.gif "Paging")
+
+
 ## Instructions
 
 There's a bit of set-up involved the first time around:
