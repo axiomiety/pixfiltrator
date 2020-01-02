@@ -4,16 +4,27 @@
   </head>
   <div id="container">
     <div id="left">
-      <input type="file" id="fileElem" accept="image/*" style="display:none" onchange="handleFiles(this.files)">
-      <a href="#" id="fileSelect">Select a file</a>
-      <button type="button" id="nextBtn" onclick="prev()">&lt;</button> 
-      <button type="button" id="nextBtn" onclick="play()">Play</button> 
-      <button type="button" id="nextBtn" onclick="next()">&gt;</button> 
-      <div id="pageTracker">?/?</div>
+      Canvas & block dimensions:<br/>
+      Width: <input type="number" id="canvasWidth" value="1200"><br/>
+      Height: <input type="number" id="canvasHeight" value="800"><br/>
+      Block size:  <input type="number" id="blockSize" value="5"><br/>
+      <button type="button" id="refreshCanvas" onclick="refreshCanvas()">Resize</button><br/>
+      <input type="file" id="fileElem" style="display:none" onchange="handleFiles(this.files)">
+      <br/>
+      <a href="#" id="fileSelect">Select a file</a><br/>
       <div id="fileList">
         <p>No files selected!</p>
       </div>
-    </div>
+      <br/>
+      <div id="sha256">SHA256: ?</div>
+      <br/>
+      Page control:<br/>
+      <button type="button" id="nextBtn" onclick="prev()">&lt;</button> 
+      <button type="button" id="nextBtn" onclick="play()">Play</button> 
+      <button type="button" id="nextBtn" onclick="next()">&gt;</button> 
+      <br/>
+      <div id="pageTracker">?/?</div>
+      </div>
     <div id="right">
       <canvas id="myCanvas" width="1200" height="800"></canvas>
     </div>
@@ -23,10 +34,11 @@
 
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-const sqWidth = 5;
+var sqWidth = document.getElementById("blockSize").value;
+console.log(`sqwidth ${sqWidth}`);
 
 function play() {
-    setTimeout(draw, 3*1000, ctx, offset, hexArray, numSquaresPerPage, numPages, true);
+    setTimeout(draw, 1000, ctx, offset, hexArray, numSquaresPerPage, numPages, true);
 }
 
 clearCanvas(ctx);
@@ -47,6 +59,18 @@ let hexArray = [];
 let offset = 0;
 let numPages = 0;
 let numSquaresPerPage = 0;
+
+function refreshCanvas() {
+  ctx.canvas.width = document.getElementById("canvasWidth").value;
+  ctx.canvas.height = document.getElementById("canvasHeight").value;
+  sqWidth = document.getElementById("blockSize").value;
+  console.log(`Canvas is ${ctx.canvas.width}x${ctx.canvas.height} and block size is ${sqWidth}`);
+  offset = 0;
+  numSquaresPerPage = getNumSquaresPerPage(ctx, sqWidth, true);
+  numPages = calcNumPages(hexArray.length, numSquaresPerPage);
+  draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
+  updateNumPages();
+};
 
 function next(playNext) {
   if (offset < numPages-1) {
@@ -70,7 +94,11 @@ function foo(file) {
     const data = fr.result;
     let array = new Uint8Array(data);
     console.log(`length of data: ${array.length}`);
-    digestMessage('SHA-256', array).then(h => console.log(`SHA256: ${h}`));
+    digestMessage('SHA-256', array).then(h => {
+      console.log(`SHA256: ${h}`);
+      const elem = document.getElementById("sha256");
+      elem.innerHTML = `SHA256: <br/>${h.substr(0,32)}<br/>${h.substr(32,32)}`;
+    });
     for(let i=0; i<array.length; i++) {
       // TODO: change this to .padStart(2,'0');
       const hex = array[i].toString(16).padStart(2, '0');

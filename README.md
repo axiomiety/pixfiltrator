@@ -25,7 +25,7 @@ There's a bit of set-up involved the first time around:
    * That's usually the first screenshot
  * Once done, remove the calibration captures - they're no longer required 
  * Call `python3 batch.py` and watch magic happen
- * Assuming all the computed SHA1 of each block match the exracted SHA1 from the metadata, you're good to perform the below:
+ * Assuming all the computed SHA1 of each block match the extracted SHA1 from the metadata, you're good to perform the below:
    * `cat block_* > foo.bin` - the resulting file will be a perfect match to the original on the client, without ever leaving the network
 
 ## Details please!

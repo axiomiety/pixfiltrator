@@ -41,7 +41,7 @@ const drawSquare = (hexStr, idx, ctx, sqWidth) => {
 const getNumSquaresPerPage = (ctx, sqWidth, withMeta=true) => {
   const w = ctx.canvas.width;
   const h = ctx.canvas.height;
-
+  console.log(`goat ${w} ${h} ${sqWidth}`);
   const metaData = withMeta ? w*sqWidth : 0;
   return (w*h-metaData)/sqWidth/sqWidth;
 };
@@ -129,7 +129,7 @@ const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfB
     //console.log(meta);
     drawMeta(ctx, sqWidth, meta);
     if (playNext === true) {
-      setTimeout(next, 1000, offset < numPages);
+      setTimeout(next, 500, offset < numPages);
     }
   });
 }
