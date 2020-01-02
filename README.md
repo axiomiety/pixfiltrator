@@ -8,7 +8,7 @@ Using pixels to exfiltrate data - and we're not talking base64+OCR!
 
 In a nutshell, `pixfiltrator` allows you to transfer (binary) files using pixels - a bit like QR codes on steroids. 
 
-A file is broken down into 'pages' which roughly represent how many bytes can be displayed on a single screen. The host takes a screenshot of each of those pages and then processes them to recover the original file - but don't worry, all of that is pretty well automated.
+A file on a guest computer (e.g. Citrix, RDP, VNC, ...) is broken down into 'pages' which roughly represent how many bytes can be displayed on a single screen. The host takes a screenshot of each of those pages and then processes them to recover the original file - but don't worry, all of that is pretty well automated.
 
 Sample: ![paging animation](https://github.com/axiomiety/pixfiltrator/blob/master/docs/paging1.gif "Paging")
 
@@ -30,13 +30,25 @@ There's a bit of set-up involved the first time around:
 
 ## Details please!
 
-Coming soon!
+The process is composed of 2 parts - one that decomposes a file (runs on the client), and one that re-assembles the parts (runs on the host).
+
+### Client
+
+A pixel is made of 3 components - one red, one blue, one green (RGB - technically there's alpha too in this, but let's ignore that for now). That gives us a range of `255x3` values. We divide this in a scale of 16 items, one for each half-byte - `0x0` to `0xf`. This allows us to handle compression somewhat as a particular colour on the guest may not be represented exactly the same on the host.
+
+The file is read and each byte is divided into 2 half-bytes, or nimbles. So `0x4c` is divided in `0x4` and `0xc`. Each get a square of their own respective colour.
+
+### Host
+
+The first part is the calibration - by having a black canvas, we are able to identify the region on screen which will contain the data.
+
+Once that region is identified, the PowerShell script takes periodic screenshots. After that the Python script extracts data from the region from each screenshot and parses each 'square' back into its corresponding value. Once all screenshots have been processed, the file is re-assembled.
 
 ## Any limitations?
 
-Some remote desktop protocols might apply so much compression that the default block width of 5 pixels is not sufficient. If that's the case you'll need to increase the block width accordingy. This will require tweaking the code a little.
+Some remote desktop protocols might apply so much compression that the default block width of 5 pixels is not sufficient. If that's the case you'll need to increase the block width accordingy. This will require tweaking the the settings on both the client and host.
 
-If you're scaling your resolution (e.g. 150%), you may need to tweak the arguments to `find_bounding_rect`.
+If you're scaling your resolution on the host (e.g. 150%), you may need to tweak the arguments to `find_bounding_rect` too.
 
 ## Can I contribute?
 
