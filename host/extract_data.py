@@ -10,9 +10,7 @@ from itertools import chain
 
 Metadata = namedtuple('Metadata', 'page_num num_pages num_bytes_on_page sha1')
 
-# accessing a pixel is as easy as accessing the x-y coordinate: img[x,y]
-# the array returned though is in BGR, not RGB
-
+# 47 = 255*3//16
 PALETTE_RGB_WIDTH = 47
 
 def convertToPaletteScale(val):
@@ -27,13 +25,12 @@ def convertToPaletteScale(val):
     return quotient
 
 def rescale(image, regionOnGuest):
-    # is this the best way to scale it?
-    # small = cv2.resize(image, (0,0), fx=2/3, fy=2/3) 
     w, h = [int(r) for r in regionOnGuest.split('x')]
     resized_image = cv2.resize(image, (w, h))
     return resized_image
 
 def identifyBlock(img, r, c, w):
+    # debug method to visualise which square we are processing
     # columns are x, rows are y
     x = c*w
     y = r*w
