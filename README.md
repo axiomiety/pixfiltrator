@@ -36,7 +36,7 @@ The process is composed of 2 parts - one that decomposes a file (runs on the cli
 
 A pixel is made of 3 components - one red, one blue, one green (RGB - technically there's alpha too in this, but let's ignore that for now). That gives us a range of `255x3` values. We divide this in a scale of 16 items, one for each half-byte - `0x0` to `0xf`. This allows us to handle compression somewhat as a particular colour on the guest may not be represented exactly the same on the host.
 
-The file is read and each byte is divided into 2 half-bytes, or nimbles. So `0x4c` is divided in `0x4` and `0xc`. Each get a square of their own respective colour. The below is a sample that cycles through all bytes from `0x00` to `0xff`:
+The file is read and each byte is divided into 2 half-bytes, or nimbles. So `0x4c` is divided in `0x4` and `0xc`. Each gets a square of their own respective colour. The below is a sample that cycles through all bytes from `0x00` to `0xff`:
 
 ![sample all bytes](https://github.com/axiomiety/pixfiltrator/blob/master/docs/sample_all_bytes.png "Sample")
 
