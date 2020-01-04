@@ -40,7 +40,7 @@ The file is read and each byte is divided into 2 half-bytes, or nimbles. So `0x4
 
 ![sample all bytes](https://github.com/axiomiety/pixfiltrator/blob/master/docs/sample_all_bytes.png "Sample")
 
-The last row contains meta-data about the file and the block. It consists of the current page number, the total number of pages, the SHA1 of the data on the pagea along with a fixed value (`0xdeadc0de`).
+The last row contains meta-data about the file and the block. It consists of the current page number, the total number of pages, the SHA1 of the data on the page along with a fixed value (`0xdeadc0de`).
 
 ### Host
 
