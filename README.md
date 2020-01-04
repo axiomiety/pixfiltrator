@@ -2,7 +2,7 @@
 
 # pixfiltrator
 
-Using pixels to exfiltrate data - and we're not talking base64+OCR!
+Using pixels to ex-filtrate data - and we're not talking base64+OCR!
 
 ## TL;DR
 
@@ -36,7 +36,7 @@ The process is composed of 2 parts - one that decomposes a file (runs on the cli
 
 A pixel is made of 3 components - one red, one blue, one green (RGB - technically there's alpha too in this, but let's ignore that for now). That gives us a range of `255x3` values. We divide this in a scale of 16 items, one for each half-byte - `0x0` to `0xf`. This allows us to handle compression somewhat as a particular colour on the guest may not be represented exactly the same on the host.
 
-The file is read and each byte is divided into 2 half-bytes, or nimbles. So `0x4c` is divided in `0x4` and `0xc`. Each gets a square of their own respective colour. The below is a sample that cycles through all bytes from `0x00` to `0xff`:
+The file is read and each byte is divided into 2 half-bytes, or nibbles. So `0x4c` is divided in `0x4` and `0xc`. Each gets a square of their own respective colour. The below is a sample that cycles through all bytes from `0x00` to `0xff`:
 
 ![sample all bytes](https://github.com/axiomiety/pixfiltrator/blob/master/docs/sample_all_bytes.png "Sample")
 
@@ -50,11 +50,11 @@ Once that region is identified, the PowerShell script takes periodic screenshots
 
 ![reassembly](https://github.com/axiomiety/pixfiltrator/blob/master/docs/reassembly1.png "Reassembly")
 
-Note how we handle identical captures by simply overwriding the outputfile. Once all screenshots have been processed, the file is re-assembled by `cat`'ing each piece together.
+Note how we handle identical captures by simply overriding the output file. Once all screenshots have been processed, the file is re-assembled by `cat`'ing each piece together.
 
 ## Any limitations?
 
-Some remote desktop protocols might apply so much compression that the default block width of 5 pixels is not sufficient. If that's the case you'll need to increase the block width accordingy. This will require tweaking the the settings on both the client and host.
+Some remote desktop protocols might apply so much compression that the default block width of 5 pixels is not sufficient. If that's the case you'll need to increase the block width accordingly. This will require tweaking the the settings on both the client and host.
 
 If you're scaling your resolution on the host (e.g. 150%), you may need to tweak the arguments to `find_bounding_rect` too.
 

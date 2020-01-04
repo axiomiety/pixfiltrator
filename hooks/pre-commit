@@ -1,9 +1,0 @@
-#!/bin/bash
-
-README_CHANGED = $(git diff --cached --name-only --diff-filter=ACM | grep README.md)
-if [ -z "$HAS_README_CHANGED"]
-then
-  echo "README.md hasn't changed, there is no need to spell-check"
-else
-  aspell check --lang=en $README_CHANGED
-
