@@ -2,7 +2,7 @@
 
 # pixfiltrator
 
-Using pixels to ex-filtrate data - and we're not talking base64+OCR!
+Using pixels to exfiltrate data - and we're not talking base64+OCR!
 
 ## TL;DR
 
