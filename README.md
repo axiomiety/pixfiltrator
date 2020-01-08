@@ -6,9 +6,9 @@ Using pixels to exfiltrate data - and we're not talking base64+OCR!
 
 ## TL;DR
 
-In a nutshell, `pixfiltrator` allows you to transfer (binary) files using pixels - a bit like QR codes on steroids. 
+In a nutshell, `pixfiltrator` allows you to transfer (binary) files using pixels - a bit like QR codes on steroids - and it works over RDP/Citrix.
 
-A file on a guest computer (e.g. Citrix, RDP, VNC, ...) is broken down into 'pages' which roughly represent how many bytes can be displayed on a single screen. The host takes a screenshot of each of those pages and then processes them to recover the original file - but don't worry, all of that is pretty well automated.
+We use a local HTML document on the guest computer to open up a file and display bytes as a series of coloured squared broken down into 'pages' (which roughly represent how many bytes can be displayed on a single screen). The host takes a screenshot of each of those pages and then processes them to recover the original file - but don't worry, all of that is pretty well automated.
 
 Sample: ![paging animation](https://github.com/axiomiety/pixfiltrator/blob/master/docs/paging1.gif "Paging")
 
