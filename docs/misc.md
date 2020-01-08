@@ -53,7 +53,9 @@
  * add type annotations to the Python portion
  * instead of logging to the console, log to the screen? easier debugging
  * ensure re-opening a file on the client doesn't lead to a dupe
- * move argsparse into main
+ * add `black` as a pre-commit hook for python source
+ * DONE: alert if the width is < than the 60 squares we need for the metadata
+ * DONE: move argsparse into main
  * DONE: change the paging mechanism to be async based on the digest (instead of every second)
  * DONE: take a screenshot of the screen programatically
  * DONE: clean up the paging - it's ugly... (now it's a little nicer)

@@ -64,6 +64,10 @@ function refreshCanvas() {
   ctx.canvas.width = document.getElementById("canvasWidth").value;
   ctx.canvas.height = document.getElementById("canvasHeight").value;
   sqWidth = document.getElementById("blockSize").value;
+  if (ctx.canvas.width/sqWidth < 60) {
+    alert(`We need at least 60 squares to capture metadata but only have ${ctx.canvas.width/sqWidth}\n` + 
+    'You may want to increase the width of the canvas or the block size');
+  }
   console.log(`Canvas is ${ctx.canvas.width}x${ctx.canvas.height} and block size is ${sqWidth}`);
   offset = 0;
   numSquaresPerPage = getNumSquaresPerPage(ctx, sqWidth, true);
