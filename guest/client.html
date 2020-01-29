@@ -23,7 +23,9 @@
       <button type="button" id="nextBtn" onclick="play()">Play</button> 
       <button type="button" id="nextBtn" onclick="next()">&gt;</button> 
       <br/>
-      <div id="pageTracker">?/?</div>
+      Refresh speed (ms):  <input type="number" id="refreshSpeed" value="1000"><br/>
+      <br/>
+      <div id="pageTracker"><h1>?/?</h1></div>
       </div>
     <div id="right">
       <canvas id="myCanvas" width="1200" height="800"></canvas>
@@ -38,7 +40,8 @@ var sqWidth = document.getElementById("blockSize").value;
 console.log(`sqwidth ${sqWidth}`);
 
 function play() {
-    setTimeout(draw, 1000, ctx, offset, hexArray, numSquaresPerPage, numPages, true);
+    const refreshSpeed = document.getElementById("refreshSpeed").value;
+    setTimeout(draw, refreshSpeed, ctx, offset, hexArray, numSquaresPerPage, numPages, true, refreshSpeed);
 }
 
 clearCanvas(ctx);
@@ -72,7 +75,8 @@ function refreshCanvas() {
   offset = 0;
   numSquaresPerPage = getNumSquaresPerPage(ctx, sqWidth, true);
   numPages = calcNumPages(hexArray.length, numSquaresPerPage);
-  draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
+  //draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
+  clearCanvas(ctx);
   updateNumPages();
 };
 
@@ -80,7 +84,8 @@ function next(playNext) {
   if (offset < numPages-1) {
     offset += 1;
     updateNumPages();
-    draw(ctx, offset, hexArray, numSquaresPerPage, numPages, playNext);
+    const refreshSpeed = document.getElementById("refreshSpeed").value;
+    draw(ctx, offset, hexArray, numSquaresPerPage, numPages, playNext, refreshSpeed);
   }
 }
 
@@ -92,7 +97,7 @@ function prev() {
   }
 }
 
-function foo(file) {
+function kickoff(file) {
   const fr = new FileReader();
   fr.onload = () => {
     const data = fr.result;
@@ -111,7 +116,8 @@ function foo(file) {
     }
     numSquaresPerPage = getNumSquaresPerPage(ctx, sqWidth, true);
     numPages = calcNumPages(hexArray.length, numSquaresPerPage);
-    draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
+    //draw(ctx, offset, hexArray, numSquaresPerPage, numPages);
+    clearCanvas(ctx);
     updateNumPages();
   }
   fr.readAsArrayBuffer(file);

@@ -18,12 +18,13 @@ const convertHexStringToRgba = (str) => {
   //return '#FF0000';
 }
   
-const clearCanvas = (ctx) => {
-  ctx.beginPath();
-  ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.fillStyle = '#000000';//convertHexStringToRgb("0"); //"#FF0000";
-  ctx.fill();
-  ctx.closePath();
+const clearCanvas = (ctx_) => {
+  ctx_ = ctx_ || ctx;
+  ctx_.beginPath();
+  ctx_.rect(0, 0, ctx_.canvas.width, ctx_.canvas.height);
+  ctx_.fillStyle = '#000000';//convertHexStringToRgb("0"); //"#FF0000";
+  ctx_.fill();
+  ctx_.closePath();
 };
 
 const drawSquare = (hexStr, idx, ctx, sqWidth) => {
@@ -74,7 +75,7 @@ const handleFiles = (files) => {
       sz.innerHTML = files[i].size + " bytes";
       li_size.appendChild(sz);
       
-      foo(files[i]);
+      kickoff(files[i]);
     }
   }
 }
@@ -101,7 +102,7 @@ const drawMeta = (ctx, sqWidth, meta) => {
 const fromHexString = hexString =>
   new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 
-const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages, playNext) => {
+const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages, playNext, refreshSpeed) => {
   /*  metadata format is as follows
        2 bytes for the page number
        2 bytes for the total number of pages
@@ -128,12 +129,12 @@ const addMetaData = (ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfB
     //console.log(meta);
     drawMeta(ctx, sqWidth, meta);
     if (playNext === true) {
-      setTimeout(next, 500, offset < numPages);
+      setTimeout(next, refreshSpeed, offset < numPages);
     }
   });
 }
 
-const draw = (ctx, offset, hexArray, numSquaresPerPage, numPages, playNext) => {
+const draw = (ctx, offset, hexArray, numSquaresPerPage, numPages, playNext, refreshSpeed) => {
   const canvasWidth = ctx.canvas.width;
   const canvasHeight = ctx.canvas.height;
   clearCanvas(ctx);
@@ -150,7 +151,7 @@ const draw = (ctx, offset, hexArray, numSquaresPerPage, numPages, playNext) => {
       drawSquare(hexArray[j], j%numSquaresPerPage, ctx, sqWidth);
   }
   // add the metadata
-  addMetaData(ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages, playNext);
+  addMetaData(ctx, sqWidth, hexArray, offset, numSquaresPerPage, numHalfBytesOnPage, numPages, playNext, refreshSpeed);
 };
 
 
