@@ -17,13 +17,13 @@ Sample: ![paging animation](https://github.com/axiomiety/pixfiltrator/blob/maste
 
 There's a bit of set-up involved the first time around:
 
- * Open up the client page on the guest
+ * Open up the client page on the guest and select the file you want to transfer
  * Kick off the `Capture-Images.ps1` PowerShell script
- * Select the file on the client and press Play
+ * Press play
  * Once all the pages have cycled through, stop the PowerShell script
  * Run `python3 find_bounding_rect.py --image <path_to_image_with_calibration_rectangle>`
    * That's usually the first screenshot
- * Once done, remove the calibration captures - they're no longer required 
+ * Once done, remove the calibration captures (the one with the black screen) - they're no longer required 
  * Call `python3 batch.py` and watch magic happen
  * Assuming all the computed SHA1 of each block match the extracted SHA1 from the metadata, you're good to perform the below:
    * `cat block_* > foo.bin` - the resulting file will be a perfect match to the original on the client, without ever leaving the network

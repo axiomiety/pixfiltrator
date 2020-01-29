@@ -41,6 +41,9 @@ console.log(`sqwidth ${sqWidth}`);
 
 function play() {
     const refreshSpeed = document.getElementById("refreshSpeed").value;
+    if (offset == -1) {
+      offset = 1; // bit of a hack as we want to show the calibration region first
+    }
     setTimeout(draw, refreshSpeed, ctx, offset, hexArray, numSquaresPerPage, numPages, true, refreshSpeed);
 }
 
@@ -59,7 +62,7 @@ fileSelect.addEventListener("click", function (e) {
 }, false);
 
 let hexArray = [];
-let offset = 0;
+let offset = -1;
 let numPages = 0;
 let numSquaresPerPage = 0;
 
